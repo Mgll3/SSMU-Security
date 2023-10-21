@@ -18,8 +18,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/ssmu-dev?serverTimezone=America/Bogota
-    username: username
-    password: password
+    username: postgres
+    password: admin
     hikari:
       idle-timeout: 10000
       maximum-pool-size: 5
@@ -29,7 +29,7 @@ spring:
 
 ssmu-api:
   openapi:
-    dev-url: http://localhost:8080/ssmu-api
+    dev-url: http://localhost:8080
     prod-url: https://ssmu-api.com
 
 logging:

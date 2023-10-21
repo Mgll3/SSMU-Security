@@ -1,7 +1,5 @@
 # Server properties
 server:
-  servlet:
-    context-path: /ssmu-api
   port: 8080
 # Spring properties
 spring:
@@ -10,3 +8,9 @@ spring:
     active: dev
   application:
     name: ssmu-api
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
