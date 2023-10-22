@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,11 +24,14 @@ public class UserController {
 
     private final UserService userServices;
 
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Autowired
-    public UserController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
+    public UserController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userServices = userService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
 
@@ -40,6 +44,7 @@ public class UserController {
      */
     @PostMapping("/register")
     public ResponseEntity<UserDTO> save(@RequestBody UserDTO userDTO){
+        userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
         UserDTO userFoundDTO = userServices.save(userDTO);
         if (userFoundDTO == null){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
