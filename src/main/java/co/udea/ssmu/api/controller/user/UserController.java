@@ -5,7 +5,6 @@ import co.udea.ssmu.api.model.jpa.dto.user.UserDTO;
 import co.udea.ssmu.api.services.user.service.UserService;
 import co.udea.ssmu.api.utils.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +12,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -55,17 +57,15 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO) {
         UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(login);
 
-        System.out.println(authentication.isAuthenticated());
-        System.out.println(authentication.getPrincipal());
-
         String jwt = this.jwtUtil.create(userDTO.getEmail());
 
-        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+        Map<String, String> response = new HashMap<>();
+        response.put("token", jwt);
 
-
+        return ResponseEntity.ok(response);
     }
 }
