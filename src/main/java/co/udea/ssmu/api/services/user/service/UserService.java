@@ -1,5 +1,6 @@
 package co.udea.ssmu.api.services.user.service;
 
+import co.udea.ssmu.api.model.jpa.dto.role.RoleDTO;
 import co.udea.ssmu.api.model.jpa.dto.user.UserDTO;
 import co.udea.ssmu.api.model.jpa.model.role.Role;
 import co.udea.ssmu.api.model.jpa.model.user.User;
@@ -15,7 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,12 +24,9 @@ public class UserService implements IUserService, UserDetailsService {
 
     private final UserRepository userRepository;
 
-    private final RoleRepository roleRepository;
-
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository){
+    public UserService(UserRepository userRepository){
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -49,33 +46,20 @@ public class UserService implements IUserService, UserDetailsService {
 
     private List<GrantedAuthority> grantedAuthorities(String[] roles) {
         List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
-
         for (String role: roles) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
         }
-
         return authorities;
     }
 
     @Override
     public UserDTO save(UserDTO userDTO){
-
         User user = new User(userDTO.getEmail(), userDTO.getPassword(), List.of(new Role(1L)));
-
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
-            //Mandar excepcion de ya existente
-            System.out.println("ya encontrado");
             return null;
         } else {
             User userFound = userRepository.save(user);
-            Optional<User> userFound2 = userRepository.findByEmail(userDTO.getEmail());
-
-            Optional<Role> roleFound = roleRepository.findById(userFound.getId());
-            //TODO: crear join en el RoleRepository @Query para que traiga los roles del usuario por el many to many
-            return new UserDTO(userFound.getEmail(), userFound.getPassword(), List.of(roleFound.get()));
-
+            return new UserDTO(userFound.getEmail(), userFound.getPassword(), List.of(new RoleDTO(1L,"USER")));
         }
-
-
     }
 }

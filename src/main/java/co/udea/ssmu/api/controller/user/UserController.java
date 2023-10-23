@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,27 +26,27 @@ public class UserController {
 
     private final UserService userServices;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userServices = userService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder  = passwordEncoder;
     }
 
 
 
     /**
-     * http://localhost:8080/
+     * http://localhost:8080/auth/register
      * Registrar Usuario nuevo
      * @param userDTO
      * @return
      */
     @PostMapping("/register")
     public ResponseEntity<UserDTO> save(@RequestBody UserDTO userDTO){
-        userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         UserDTO userFoundDTO = userServices.save(userDTO);
         if (userFoundDTO == null){
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -55,7 +55,12 @@ public class UserController {
         }
     }
 
-
+    /**
+     * http://localhost:8080/auth/login
+     * Login de usuario
+     * @param userDTO
+     * @return
+     */
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO) {
         UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());

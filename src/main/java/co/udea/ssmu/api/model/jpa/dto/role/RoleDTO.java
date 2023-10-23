@@ -9,17 +9,18 @@ public class RoleDTO {
     private Long id;
 
     private String name;
-    private List<User> users;
+
 
     //Constructors
     public RoleDTO() {
     }
 
-    public RoleDTO(Long id, String name, List<User> users) {
+    public RoleDTO(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.users = users;
     }
+
+
 
     public RoleDTO(Long id) {
         this.id = id;
@@ -40,13 +41,5 @@ public class RoleDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
     }
 }

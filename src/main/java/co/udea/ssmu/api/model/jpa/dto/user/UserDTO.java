@@ -1,5 +1,6 @@
 package co.udea.ssmu.api.model.jpa.dto.user;
 
+import co.udea.ssmu.api.model.jpa.dto.role.RoleDTO;
 import co.udea.ssmu.api.model.jpa.model.role.Role;
 import jakarta.persistence.*;
 
@@ -11,13 +12,13 @@ public class UserDTO {
 
     private String email;
     private String password;
-    private List<Role> roles;
+    private List<RoleDTO> roles;
 
     // Constructors
     public UserDTO() {
     }
 
-    public UserDTO(String email, String password, List<Role> roles) {
+    public UserDTO(String email, String password, List<RoleDTO> roles) {
 
         this.email = email;
         this.password = password;
@@ -51,11 +52,11 @@ public class UserDTO {
         this.password = password;
     }
 
-    public List<Role> getRoles() {
+    public List<RoleDTO> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(List<RoleDTO> roles) {
         this.roles = roles;
     }
 
