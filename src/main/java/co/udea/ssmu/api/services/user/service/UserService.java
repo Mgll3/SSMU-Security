@@ -8,12 +8,14 @@ import co.udea.ssmu.api.model.jpa.repository.role.RoleRepository;
 import co.udea.ssmu.api.model.jpa.repository.user.UserRepository;
 import co.udea.ssmu.api.services.user.facade.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +34,17 @@ public class UserService implements IUserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        User user = this.userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("email " +email + "not found."));
+        Optional<User> user = this.userRepository.findByEmail(email);
 
-        String[] roles = user.getRoles().stream().map(Role::getName).toArray(String[]::new);
+        if (user.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        String[] roles = user.get().getRoles().stream().map(Role::getName).toArray(String[]::new);
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
+                .username(user.get().getEmail())
+                .password(user.get().getPassword())
                 .authorities(this.grantedAuthorities(roles))
                 .build();
     }
@@ -47,7 +52,7 @@ public class UserService implements IUserService, UserDetailsService {
     private List<GrantedAuthority> grantedAuthorities(String[] roles) {
         List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
         for (String role: roles) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+            authorities.add(new SimpleGrantedAuthority(role));
         }
         return authorities;
     }

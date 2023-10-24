@@ -10,11 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -55,6 +56,12 @@ public class UserController {
         }
     }
 
+    public static List<String> convertObjectArrayToListString(Object[] objectArray) {
+        return Arrays.stream(objectArray)
+                .map(Object::toString)
+                .collect(Collectors.toList());
+    }
+
     /**
      * http://localhost:8080/auth/login
      * Login de usuario
@@ -62,15 +69,25 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO userDTO) {
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());
-        Authentication authentication = this.authenticationManager.authenticate(login);
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UserDTO userDTO) {
+        try {
+            UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());
+            Authentication authentication = this.authenticationManager.authenticate(login);
 
-        String jwt = this.jwtUtil.create(userDTO.getEmail());
+            String jwt = this.jwtUtil.create(userDTO.getEmail());
 
-        Map<String, String> response = new HashMap<>();
-        response.put("token", jwt);
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", jwt);
+            response.put("email", userDTO.getEmail());
+            response.put("role", convertObjectArrayToListString(authentication.getAuthorities().toArray()));
 
-        return ResponseEntity.ok(response);
+
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            return ResponseEntity.status(401).body(null);
+        }
+
+
+
     }
 }
