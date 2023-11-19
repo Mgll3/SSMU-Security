@@ -10,13 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Tag(name = "Auth", description = "Autenticacion y Registro de nuevos usuarios")
 @RestController
 @RequestMapping("/auth")
 public class UserController {
@@ -26,7 +30,6 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     private final UserService userServices;
-
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -39,13 +42,13 @@ public class UserController {
 
 
 
-    /**
-     * http://localhost:8080/auth/register
-     * Registrar Usuario nuevo
-     * @param userDTO
-     * @return
-     */
+
     @PostMapping("/register")
+    @Operation(summary = "Permite registrar un nuevo usuario")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "El usuario se registró correctamente"),
+            @ApiResponse(responseCode = "409", description = "El usuario no se registró correctamente")
+    })
     public ResponseEntity<UserDTO> save(@RequestBody UserDTO userDTO){
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         UserDTO userFoundDTO = userServices.save(userDTO);
@@ -56,19 +59,13 @@ public class UserController {
         }
     }
 
-    public static List<String> convertObjectArrayToListString(Object[] objectArray) {
-        return Arrays.stream(objectArray)
-                .map(Object::toString)
-                .collect(Collectors.toList());
-    }
 
-    /**
-     * http://localhost:8080/auth/login
-     * Login de usuario
-     * @param userDTO
-     * @return
-     */
     @PostMapping("/login")
+    @Operation(summary = "Permite iniciar session")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "El usuario inició sesión correctamente"),
+            @ApiResponse(responseCode = "401", description = "El usuario no está autorizado")
+    })
     public ResponseEntity<Map<String, Object>> login(@RequestBody UserDTO userDTO) {
         try {
             UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword());
@@ -86,8 +83,11 @@ public class UserController {
         }catch (Exception e){
             return ResponseEntity.status(401).body(null);
         }
+    }
 
-
-
+    public static List<String> convertObjectArrayToListString(Object[] objectArray) {
+        return Arrays.stream(objectArray)
+                .map(Object::toString)
+                .collect(Collectors.toList());
     }
 }

@@ -17,7 +17,7 @@ spring:
 
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/ssmu-dev?serverTimezone=America/Bogota
+    url: jdbc:postgresql://postgres-standalone:5432/ssmu-dev?serverTimezone=America/Bogota
     username: postgres
     password: admin
     hikari:

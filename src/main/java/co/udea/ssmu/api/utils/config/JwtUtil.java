@@ -18,7 +18,7 @@ public class JwtUtil {
                 .withSubject(email)
                 .withIssuer("SSMU")
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15)))
+                .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1)))
                 .sign(ALGORITHM);
     }
 
@@ -38,5 +38,12 @@ public class JwtUtil {
                 .build()
                 .verify(jwt)
                 .getSubject();
+    }
+
+    public Date getIssuedAt (String jwt) {
+        return JWT.require(ALGORITHM)
+                .build()
+                .verify(jwt)
+                .getIssuedAt();
     }
 }
